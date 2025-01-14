@@ -124,6 +124,7 @@ public class InMemoryTaskManagerTest {
 
         assertEquals("Task with this ID already exists.", exception.getMessage());
     }
+
     @Test
     public void testTaskImmutability() {
         Task task = new Task("Task1", "Description1");
@@ -161,6 +162,7 @@ public class InMemoryTaskManagerTest {
         List<Task> history = manager.getHistory();
         assertTrue(history.contains(task), "История должна содержать обновленную задачу.");
     }
+
     @Test
     public void testManagersGetDefault() {
         TaskManager manager = Managers.getDefault();
