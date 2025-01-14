@@ -40,5 +40,6 @@ public interface TaskManager {
     void removeAllTasks();
 
     void removeAllEpics();
+
     void removeAllSubtasks();
 }
