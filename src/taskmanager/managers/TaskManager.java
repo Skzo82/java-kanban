@@ -17,6 +17,8 @@ public interface TaskManager {
 
     List<Subtask> getSubtasksByEpic(int epicId);
 
+    List<Task> getSubtasks();
+
     List<Task> getHistory();
 
     int addNewTask(Task task);

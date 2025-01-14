@@ -17,12 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 public class InMemoryTaskManagerTest {
 
     private InMemoryTaskManager taskManager;
-    private InMemoryTaskManager manager;
 
     @BeforeEach
     public void setup() {
         taskManager = new InMemoryTaskManager();
-        manager = new InMemoryTaskManager();
     }
 
     @Test
@@ -128,14 +126,14 @@ public class InMemoryTaskManagerTest {
     @Test
     public void testTaskImmutability() {
         Task task = new Task("Task1", "Description1");
-        int id = manager.addNewTask(task);
+        int id = taskManager.addNewTask(task);
 
 
         Task modifiedTask = new Task(task);
         modifiedTask.setStatus(TaskStatus.DONE);
 
 
-        Task retrievedTask = manager.getTask(id);
+        Task retrievedTask = taskManager.getTask(id);
         assertNotEquals(TaskStatus.DONE, retrievedTask.getStatus(), "Task in the manager should remain unchanged.");
     }
 
@@ -175,26 +173,23 @@ public class InMemoryTaskManagerTest {
     @Test
     public void testAddNewTask() {
         Task task = new Task("Test Task", "This is a test task.");
-        int taskId = manager.addNewTask(task);
+        int taskId = taskManager.addNewTask(task);
 
-        Task retrievedTask = manager.getTask(taskId);
+        Task retrievedTask = taskManager.getTask(taskId);
         assertNotNull(retrievedTask, "Task should not be null.");
         assertEquals(task, retrievedTask, "Tasks should be equal.");
     }
 
     @Test
     public void testPreviousVersionInHistory() {
-        TaskManager manager = new InMemoryTaskManager();
         Task task = new Task("Task", "History check");
-        int taskId = manager.addNewTask(task);
-
-
+        int taskId = taskManager.addNewTask(task);
         task.setStatus(TaskStatus.DONE);
-        manager.updateTask(new Task(task));
 
+        Task updatedTask = new Task(task);
+        taskManager.updateTask(updatedTask);
 
-        List<Task> history = manager.getHistory();
-
+        List<Task> history = taskManager.getHistory();
 
         boolean previousVersionRecorded = history.stream()
                 .anyMatch(t -> t.getId() == taskId && t.getStatus() == TaskStatus.NEW);
@@ -243,20 +238,20 @@ public class InMemoryTaskManagerTest {
     void testIdConflict() {
         Task task1 = new Task("Task1", "Description");
         task1.setId(1);
-        manager.addNewTask(task1);
+        taskManager.addNewTask(task1); // Change from 'manager' to 'taskManager'
 
         Task task2 = new Task("Task2", "Description");
         task2.setId(1);
 
-        assertThrows(IllegalArgumentException.class, () -> manager.addNewTask(task2));
+        assertThrows(IllegalArgumentException.class, () -> taskManager.addNewTask(task2));
     }
 
     @Test
     void testTaskFieldsAfterAddition() {
         Task task = new Task("Task1", "Description");
-        int id = manager.addNewTask(task);
+        int id = taskManager.addNewTask(task);
 
-        Task retrieved = manager.getTask(id);
+        Task retrieved = taskManager.getTask(id);
         assertEquals("Task1", retrieved.getName());
         assertEquals("Description", retrieved.getDescription());
     }
@@ -291,13 +286,13 @@ public class InMemoryTaskManagerTest {
     @Test
     public void shouldNotAllowEpicAsItsOwnSubtask() {
         Epic epic = new Epic("Epic", "Description");
-        int epicId = manager.addNewEpic(epic);
+        int epicId = taskManager.addNewEpic(epic);
 
         Subtask invalidSubtask = new Subtask("Subtask", "Invalid", epicId);
-        invalidSubtask.setId(epicId);
+        invalidSubtask.setId(epicId); // Set the same ID as the epic
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            manager.addNewSubtask(invalidSubtask);
+            taskManager.addNewSubtask(invalidSubtask);
         });
 
         assertEquals("Epic cannot be its own subtask.", exception.getMessage());
@@ -320,15 +315,15 @@ public class InMemoryTaskManagerTest {
     public void testAddAndRetrieveDifferentTaskTypes() {
         Task task = new Task("Task name", "Task description");
         Epic epic = new Epic("Test Epic", "Epic description");
-        int epicId = manager.addNewEpic(epic);
+        int epicId = taskManager.addNewEpic(epic);
 
         Subtask subtask = new Subtask("Test Subtask", "Subtask description", epicId);
-        int subtaskId = manager.addNewSubtask(subtask);
+        int subtaskId = taskManager.addNewSubtask(subtask);
 
-        int taskId = manager.addNewTask(task);
+        int taskId = taskManager.addNewTask(task);
 
-        assertEquals(task, manager.getTask(taskId), "Task should be retrieved correctly.");
-        assertEquals(epic, manager.getEpic(epicId), "Epic should be retrieved correctly.");
-        assertEquals(subtask, manager.getSubtask(subtaskId), "Subtask should be retrieved correctly.");
+        assertEquals(task, taskManager.getTask(taskId), "Task should be retrieved correctly.");
+        assertEquals(epic, taskManager.getEpic(epicId), "Epic should be retrieved correctly.");
+        assertEquals(subtask, taskManager.getSubtask(subtaskId), "Subtask should be retrieved correctly.");
     }
 }
