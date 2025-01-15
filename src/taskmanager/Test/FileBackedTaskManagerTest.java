@@ -11,7 +11,7 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest {
-    private final File file = new File("test.csv"); // временный файл для тестирования
+    private final File file = new File("test.csv"); 
     private FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
 
     @Test
